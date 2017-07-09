@@ -645,7 +645,7 @@ int getCost(int cardNumber)
 
 int adventurerfunc(int drawntreasure, struct gameState *state, int currentPlayer, int cardDrawn, int *temphand)
 {
-	//int z = 0; //<- correct version
+	//int z = 0; <- correct version
 	int z; // <- bugged version
 	
 	while(drawntreasure<2)
@@ -695,7 +695,10 @@ int villagefunc(int currentPlayer, struct gameState *state, int handPos)
 	drawCard(currentPlayer, state);
 			
 	//+2 Actions
-	state->numActions = state->numActions + 2;
+	//state->numActions = state->numActions + 2; // <- Correct Version
+	
+	//Bugged code, only gives +1 Action
+	state->numActions = state->numActions + 1; // <- Bugged Version
 			
 	//discard played card from hand
 	discardCard(handPos, currentPlayer, state, 0);
@@ -719,10 +722,15 @@ int minefunc(struct gameState *state, int currentPlayer, int choice1, int choice
 		return -1;
 	}
 
-    if ( (getCost(state->hand[currentPlayer][choice1]) + 3) > getCost(choice2) )
+    /*if ( (getCost(state->hand[currentPlayer][choice1]) + 3) > getCost(choice2) )
 	{
 		return -1;
-	}
+	}*/ // <-Correct code
+	
+	if ( (getCost(state->hand[currentPlayer][choice1]) + 2) > getCost(choice2) )
+	{
+		return -1;
+	} // <-Bugged Code
 
     gainCard(choice2, state, 2, currentPlayer);
 
