@@ -645,7 +645,8 @@ int getCost(int cardNumber)
 
 int adventurerfunc(int drawntreasure, struct gameState *state, int currentPlayer, int cardDrawn, int *temphand)
 {
-	int z = 0;
+	//int z = 0; //<- correct version
+	int z; // <- bugged version
 	
 	while(drawntreasure<2)
 	{
@@ -680,6 +681,8 @@ int smithyfunc(int currentPlayer, struct gameState *state, int handPos)
 	{
 		drawCard(currentPlayer, state);
 	}
+	
+	handPos++; //Introduced Bug. Causes wrong card to be discarded. To fix, delete this line.
 	
     //discard card from hand
     discardCard(handPos, currentPlayer, state, 0);
@@ -815,8 +818,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
 		}
 		return 0; */
 	
-	
-	return adventurerfunc(drawntreasure, state, currentPlayer, cardDrawn, temphand);
+		return adventurerfunc(drawntreasure, state, currentPlayer, cardDrawn, temphand);
 	
     case council_room:
     /*  //+4 Cards
