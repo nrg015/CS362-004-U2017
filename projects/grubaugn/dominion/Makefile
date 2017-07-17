@@ -39,18 +39,34 @@ testgetCost: unittest3.c dominion.o rngs.o interface.o
 testisGameOver: unittest4.c dominion.o rngs.o
 	gcc -o testisGameOver -g  unittest4.c dominion.o rngs.o $(CFLAGS)
 
+cardtestsmithy: cardtest1.c dominion.o rngs.o
+	gcc -o cardtestsmithy -g  cardtest1.c dominion.o rngs.o $(CFLAGS)
+	
+cardtestvillage: cardtest2.c dominion.o rngs.o
+	gcc -o cardtestvillage -g  cardtest2.c dominion.o rngs.o $(CFLAGS)
+
+cardtestmine: cardtest3.c dominion.o rngs.o
+	gcc -o cardtestmine -g  cardtest3.c dominion.o rngs.o $(CFLAGS)
+	
+cardtestadventurer: cardtest4.c dominion.o rngs.o
+	gcc -o cardtestadventurer -g  cardtest4.c dominion.o rngs.o $(CFLAGS)
+
 runtests: testDrawCard 
 	./testDrawCard &> unittestresult.out
 	gcov dominion.c >> unittestresult.out
 	cat dominion.c.gcov >> unittestresult.out
 
-unittestresult.out: testdiscardCard testgainCard testgetCost testisGameOver dominion.o
-	./testdiscardCard &> unittestresult.out
-	./testgainCard >> unittestresult.out
-	./testgetCost >> unittestresult.out
-	./testisGameOver >> unittestresult.out
-	gcov dominion.c >> unittestresult.out
-	cat dominion.c.gcov >> unittestresult.out
+unittestresults.out: testdiscardCard testgainCard testgetCost testisGameOver cardtestsmithy cardtestvillage cardtestmine cardtestadventurer dominion.o
+	./testdiscardCard &> unittestresults.out
+	./testgainCard >> unittestresults.out
+	./testgetCost >> unittestresults.out
+	./testisGameOver >> unittestresults.out
+	./cardtestsmithy >> unittestresults.out
+	./cardtestvillage >> unittestresults.out
+	./cardtestmine >> unittestresults.out
+	./cardtestadventurer >> unittestresults.out
+	gcov dominion.c >> unittestresults.out
+	cat dominion.c.gcov >> unittestresults.out
 
 
 player: player.c interface.o
@@ -61,3 +77,4 @@ all: playdom player testDrawCard testBuyCard badTestDrawCard
 clean:
 	rm -f *.o playdom.exe playdom player player.exe  *.gcov *.gcda *.gcno *.so *.out testDrawCard testDrawCard.exe
 	rm -f testdiscardCard testdiscardCard.exe testgainCard testgainCard.exe testgetCost testgetCost.exe testisGameOver testisGameOver.exe
+	rm -f testUpdateCoins testUpdateCoins.exe cardtestsmithy cardtestsmithy.exe

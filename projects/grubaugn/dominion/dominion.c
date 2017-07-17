@@ -104,32 +104,32 @@ int initializeGame(int numPlayers, int kingdomCards[10], int randomSeed,
 
   //set number of Kingdom cards
   for (i = adventurer; i <= treasure_map; i++)       	//loop all cards
-    {
-      for (j = 0; j < 10; j++)           		//loop chosen cards
+  {
+	for (j = 0; j < 10; j++)           		//loop chosen cards
 	{
-	  if (kingdomCards[j] == i)
-	    {
+		if (kingdomCards[j] == i)
+		{
 	      //check if card is a 'Victory' Kingdom card
-	      if (kingdomCards[j] == great_hall || kingdomCards[j] == gardens)
-		{
-		  if (numPlayers == 2){ 
-		    state->supplyCount[i] = 8; 
-		  }
-		  else{ state->supplyCount[i] = 12; }
+			if (kingdomCards[j] == great_hall || kingdomCards[j] == gardens)
+			{
+				if (numPlayers == 2){ 
+					state->supplyCount[i] = 8; 
+				}
+				else{ state->supplyCount[i] = 12; }
+			}
+			else
+			{
+				state->supplyCount[i] = 10;
+			}
+			break;
 		}
-	      else
-		{
-		  state->supplyCount[i] = 10;
-		}
-	      break;
-	    }
-	  else    //card is not in the set choosen for the game
+		else    //card is not in the set choosen for the game
 	    {
-	      state->supplyCount[i] = -1;
+			state->supplyCount[i] = -1;
 	    }
 	}
 
-    }
+  }
 
   ////////////////////////
   //supply intilization complete
@@ -645,8 +645,8 @@ int getCost(int cardNumber)
 
 int adventurerfunc(int drawntreasure, struct gameState *state, int currentPlayer, int cardDrawn, int *temphand)
 {
-	//int z = 0; <- correct version
-	int z; // <- bugged version
+	int z = 0; //<- correct version
+	//int z; // <- bugged version
 	
 	while(drawntreasure<2)
 	{
@@ -747,8 +747,7 @@ int minefunc(struct gameState *state, int currentPlayer, int choice1, int choice
 	    }
 	}
 			
-    return 0;
-				
+    return 0;				
 }
 
 int council_roomfunc(int currentPlayer, struct gameState *state, int handPos)
