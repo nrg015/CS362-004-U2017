@@ -1,0 +1,63 @@
+        -:    0:Source:unittest3.c
+        -:    0:Graph:unittest3.gcno
+        -:    0:Data:unittest3.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/* -----------------------------------------------------------------------
+        -:    2: * Include the following lines in your makefile:
+        -:    3: *
+        -:    4: * testgetCost: unittest3.c dominion.o rngs.o
+        -:    5: *      gcc -o testgetCost -g  unittest3.c dominion.o rngs.o $(CFLAGS)
+        -:    6: * -----------------------------------------------------------------------
+        -:    7: */
+        -:    8: 
+        -:    9:#include "dominion.h"
+        -:   10:#include "dominion_helpers.h"
+        -:   11:#include <string.h>
+        -:   12:#include <stdio.h>
+        -:   13:#include <assert.h>
+        -:   14:#include "rngs.h"
+        -:   15:#include "interface.h"
+        -:   16:
+        -:   17:#define NOISY_TEST 1
+        -:   18:
+        1:   19:int main() {
+        -:   20:	int i;
+        -:   21:	int cost;
+        1:   22:	int card[27] = {curse, estate, duchy, province, copper, silver, gold, adventurer, council_room, feast, 
+        -:   23:					gardens, mine, remodel, smithy, village, baron, great_hall, minion, steward, tribute, 
+        -:   24:					ambassador, cutpurse, embargo, outpost, salvager, sea_hag, treasure_map};
+        -:   25:	
+        1:   26:	int expect[27] = {0, 2, 5, 8, 0, 3, 6, 6, 5, 4, 4, 5, 4, 4, 3, 4, 3, 5, 3, 5, 3, 4, 2, 5, 4, 4, 4};
+        -:   27:	char name[256];
+        -:   28:	
+        1:   29:	printf ("TESTING getCost():\n");
+        1:   30:	printf ("Testing regular operations\n");
+        -:   31:
+       28:   32:	for(i = 0; i < 27; i++) {
+        -:   33:		
+       27:   34:		cardNumToName(card[i], &name);
+        -:   35:	
+        -:   36:#if (NOISY_TEST == 1)
+       27:   37:		printf ("   Testing %s\n", name);
+        -:   38:#endif	
+        -:   39:
+       27:   40:		cost = getCost(card[i]);
+        -:   41:
+        -:   42:#if (NOISY_TEST == 1)
+       27:   43:		printf ("      Cost recieved: %d Expected: %d \n", cost, expect[i]);
+        -:   44:#endif
+        -:   45:	
+        -:   46:	}
+        -:   47:	
+        1:   48:	printf ("Testing bad input\n");
+        -:   49:	
+        1:   50:	cost = getCost(256);
+        -:   51:	
+        -:   52:#if (NOISY_TEST == 1)	
+        1:   53:	printf ("   Cost recieved: %d Expected: -1 \n", cost);
+        -:   54:#endif
+        -:   55:
+        1:   56:	printf("All tests Conducted!\n");
+        1:   57:	return 0;
+        -:   58:}

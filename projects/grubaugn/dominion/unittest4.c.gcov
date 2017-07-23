@@ -1,0 +1,126 @@
+        -:    0:Source:unittest4.c
+        -:    0:Graph:unittest4.gcno
+        -:    0:Data:unittest4.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/* -----------------------------------------------------------------------
+        -:    2: * Include the following lines in your makefile:
+        -:    3: *
+        -:    4: * testisGameOver: unittest4.c dominion.o rngs.o
+        -:    5: *      gcc -o testisGameOver -g  unittest4.c dominion.o rngs.o $(CFLAGS)
+        -:    6: * -----------------------------------------------------------------------
+        -:    7: */
+        -:    8: 
+        -:    9:#include "dominion.h"
+        -:   10:#include "dominion_helpers.h"
+        -:   11:#include <string.h>
+        -:   12:#include <stdio.h>
+        -:   13:#include <assert.h>
+        -:   14:#include "rngs.h"
+        -:   15:
+        -:   16:#define NOISY_TEST 1
+        -:   17:
+        1:   18:int main() {
+        -:   19:	int i, j, l, m;
+        1:   20:	int seed = 15;
+        -:   21:	int numPlayer;
+        -:   22:	int r;
+        1:   23:	int k[10] = {adventurer, council_room, feast, gardens, mine, remodel, smithy, village, baron, great_hall};
+        -:   24:	
+        -:   25:	int end; //captures isGameOver() return value
+        -:   26:
+        -:   27:	struct gameState G;
+        -:   28:	
+        1:   29:	printf ("TESTING isGameOver():\n");
+        -:   30:	
+        4:   31:	for (numPlayer = 2; numPlayer < 5; numPlayer++) {		//test 2 - 4 players
+        3:   32:		memset(&G, 23, sizeof(struct gameState));		//clear the game
+        -:   33:		
+        -:   34:#if (NOISY_TEST == 1)			
+        3:   35:		printf("Initializing Game with %d players\n", numPlayer);
+        -:   36:#endif
+        3:   37:		r = initializeGame(numPlayer, k, seed, &G);		//new game
+        -:   38:		
+        -:   39:#if (NOISY_TEST == 1)		
+        3:   40:		printf("   Testing start of game\n");
+        -:   41:#endif
+        -:   42:
+        3:   43:		end = isGameOver(&G);
+        -:   44:
+        -:   45:#if (NOISY_TEST == 1)		
+        3:   46:		printf("      Game Over? %d Expected: 0\n", end);
+        -:   47:#endif	
+        -:   48:		
+        -:   49:
+        -:   50:#if (NOISY_TEST == 1)
+        3:   51:		printf("   Testing empty Province pile\n");
+        -:   52:#endif
+        3:   53:		j = G.supplyCount[province];		//save province supply
+        3:   54:		G.supplyCount[province] = 0;
+        3:   55:		end = isGameOver(&G);
+        -:   56:		
+        -:   57:#if (NOISY_TEST == 1)		
+        3:   58:		printf("      Game Over? %d Expected: 1\n", end);
+        -:   59:#endif
+        -:   60:
+        -:   61:#if (NOISY_TEST == 1)
+        3:   62:		printf("   Testing one card in Province pile\n");
+        -:   63:#endif
+        3:   64:		G.supplyCount[province] = 1;
+        3:   65:		end = isGameOver(&G);
+        -:   66:		
+        -:   67:#if (NOISY_TEST == 1)		
+        3:   68:		printf("      Game Over? %d Expected: 0\n", end);
+        -:   69:#endif
+        -:   70:
+        3:   71:		G.supplyCount[province] = j;		//restore province supply
+        -:   72:
+        -:   73:#if (NOISY_TEST == 1)
+        3:   74:		printf("   Testing 3 empty supply piles\n");
+        -:   75:#endif
+        -:   76:	
+       27:   77:		for(i = 0; i < 8; i++) {
+       24:   78:			j = G.supplyCount[k[i]];		//save supply piles
+       24:   79:			l = G.supplyCount[k[i+1]];
+       24:   80:			m = G.supplyCount[k[i+2]];
+        -:   81:			
+       24:   82:			G.supplyCount[k[i]] = 0;		//set to 0
+       24:   83:			G.supplyCount[k[i+1]] = 0;
+       24:   84:			G.supplyCount[k[i+2]] = 0;
+        -:   85:			
+       24:   86:			end = isGameOver(&G);
+        -:   87:			
+        -:   88:#if (NOISY_TEST == 1)		
+       24:   89:		printf("      Game Over? %d Expected: 1\n", end);
+        -:   90:#endif
+        -:   91:
+       24:   92:			G.supplyCount[k[i]] = j;		//restore supply piles
+       24:   93:			G.supplyCount[k[i+1]] = l;
+       24:   94:			G.supplyCount[k[i+2]] = m;
+        -:   95:		}
+        -:   96:		
+        -:   97:#if (NOISY_TEST == 1)
+        3:   98:		printf("   Testing 2 empty supply piles\n");
+        -:   99:#endif
+        -:  100:	
+       30:  101:		for(i = 0; i < 9; i++) {
+       27:  102:			j = G.supplyCount[k[i]];		//save supply piles
+       27:  103:			l = G.supplyCount[k[i+1]];
+        -:  104:			
+       27:  105:			G.supplyCount[k[i]] = 0;		//set to 0
+       27:  106:			G.supplyCount[k[i+1]] = 0;
+        -:  107:			
+       27:  108:			end = isGameOver(&G);
+        -:  109:			
+        -:  110:#if (NOISY_TEST == 1)		
+       27:  111:		printf("      Game Over? %d Expected: 0\n", end);
+        -:  112:#endif
+        -:  113:
+       27:  114:			G.supplyCount[k[i]] = j;		//restore supply piles
+       27:  115:			G.supplyCount[k[i+1]] = l;
+        -:  116:		}
+        -:  117:	}
+        -:  118:
+        1:  119:	printf("All tests Conducted!\n");
+        1:  120:	return 0;
+        -:  121:}

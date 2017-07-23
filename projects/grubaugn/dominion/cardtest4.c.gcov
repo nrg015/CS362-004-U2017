@@ -1,0 +1,157 @@
+        -:    0:Source:cardtest4.c
+        -:    0:Graph:cardtest4.gcno
+        -:    0:Data:cardtest4.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/*
+        -:    2: * Include the following lines in your makefile:
+        -:    3: *
+        -:    4: * cardtestadventurer: cardtest4.c dominion.o rngs.o
+        -:    5: *      gcc -o cardtestadventurer -g  cardtest4.c dominion.o rngs.o $(CFLAGS)
+        -:    6: */
+        -:    7:
+        -:    8:
+        -:    9:#include "dominion.h"
+        -:   10:#include "dominion_helpers.h"
+        -:   11:#include <string.h>
+        -:   12:#include <stdio.h>
+        -:   13:#include <assert.h>
+        -:   14:#include "rngs.h"
+        -:   15:#include <stdlib.h>
+        -:   16:
+        -:   17:// set NOISY_TEST to 0 to remove printfs from output
+        -:   18:#define NOISY_TEST 1
+        -:   19:
+        1:   20:int main() {
+        -:   21:    int i, ret;
+        1:   22:    int handpos = 0, choice1 = 0, choice2 = 0, choice3 = 0, bonus = 0;
+        1:   23:    int seed = 15;
+        -:   24:    int numPlayers, player;
+        -:   25:	struct gameState G, post;
+        1:   26:	int k[10] = {adventurer, embargo, village, minion, mine, cutpurse,
+        -:   27:			sea_hag, tribute, smithy, council_room};
+        -:   28:	
+        1:   29:	int h[5] = {adventurer, copper, copper, estate, estate};
+        -:   30:	int d[5];
+        1:   31:	int expect[6] = {copper, copper, copper, estate, estate, copper};
+        -:   32:
+        1:   33:	printf("Testing Card: Adventurer\n");
+        -:   34:
+        4:   35:	for (numPlayers = 2; numPlayers < 5; numPlayers++) {	//testing 2-4 player games
+        3:   36:		memset(&G, 23, sizeof(struct gameState));		//clear the game
+        3:   37:		memset(&post, 23, sizeof(struct gameState));	//clear the post
+        -:   38:		
+       12:   39:		for(i = 0; i < 3; i++) {		//testing each treasure card in deck
+        -:   40:			
+        9:   41:			switch (i) {
+        -:   42:				case 0: 
+        -:   43:				{
+        3:   44:					d[0] = estate;
+        3:   45:					d[1] = copper; 
+        3:   46:					d[2] = curse;
+        3:   47:					d[3] = copper;
+        3:   48:					d[4] = gardens;
+        3:   49:					expect[0] = copper;
+        3:   50:					expect[5] = copper;
+        -:   51:				}
+        -:   52:				case 1: 
+        -:   53:				{
+        6:   54:					d[0] = mine;
+        6:   55:					d[1] = silver;
+        6:   56:					d[2] = province;
+        6:   57:					d[3] = silver;
+        6:   58:					d[4] = village;
+        6:   59:					expect[0] = silver;
+        6:   60:					expect[5] = silver;
+        -:   61:				}		
+        -:   62:				case 2: 
+        -:   63:				{
+        9:   64:					d[0] = duchy; 
+        9:   65:					d[1] = gold;
+        9:   66:					d[2] = minion;
+        9:   67:					d[3] = gold;
+        9:   68:					d[4] = cutpurse;
+        9:   69:					expect[0] = gold; 
+        9:   70:					expect[5] = gold;
+        -:   71:				}
+        -:   72:			}
+        -:   73:			
+        -:   74:#if (NOISY_TEST == 1)			
+        9:   75:			printf("Initializing Game with %d players\n", numPlayers);
+        -:   76:#endif
+        -:   77:
+        9:   78:			initializeGame(numPlayers, k, seed, &G);
+        -:   79:				
+       36:   80:			for(player = 0; player < numPlayers; player++) {		//testing each player in game
+        -:   81:#if (NOISY_TEST == 1)		
+       27:   82:				printf("Testing Player %d\n", player);
+        -:   83:#endif			
+        -:   84:				//cards can be shuffled differently, so drawn cards might not be the same for each instance of the game
+        -:   85:				//thus all the cards in the deck were made coppers.	
+       27:   86:				memcpy(G.hand[player], h, sizeof(int) * 5); //set all cards to test hand h
+       27:   87:				memcpy(G.deck[player], d, sizeof(int) * 5); //set all cards to test deck d
+       27:   88:				G.deckCount[player] = 5;
+       27:   89:				G.handCount[player] = 5;
+       27:   90:				G.whoseTurn = player;		//smithy card expects that the player is playing it on their turn
+        -:   91:				
+       27:   92:				memcpy(&post, &G, sizeof(struct gameState)); //save G
+        -:   93:
+       27:   94:				cardEffect(adventurer, choice1, choice2, choice3, &post, handpos, &bonus);
+        -:   95:#if (NOISY_TEST == 1)			
+       27:   96:				printf("   Checking hand count: \n");
+       27:   97:				printf("      Hand count: %d Expected: %d\n", post.handCount[player], G.handCount[player]+1);		//hand count should still be 5 (+1 - 1)
+       27:   98:				printf("      If this test doesn't work, then the next one won't either\n");
+       27:   99:				printf("   Checking correct card was discarded: \n");
+        -:  100:#endif
+        -:  101:				
+       27:  102:				ret = memcmp(post.hand[player], expect, sizeof(int) * post.handCount[player]);
+        -:  103:				
+        -:  104:#if (NOISY_TEST == 1)		
+       27:  105:				printf("      Comparison: %d Expected: 0\n", ret);
+        -:  106:#endif
+        -:  107:
+        -:  108:			}
+        -:  109:		}
+        -:  110:	}
+        -:  111:	
+        1:  112:	printf("Testing one treasure card in deck\n");
+        -:  113:	
+        1:  114:	h[0] = adventurer;
+        1:  115:	h[1] = copper;
+        1:  116:	h[2] = copper;
+        1:  117:	h[3] = estate; 
+        1:  118:	h[4] = estate;
+        1:  119:	d[0] = estate;
+        1:  120:	d[1] = duchy; 
+        1:  121:	d[2] = curse;
+        1:  122:	d[3] = copper;
+        1:  123:	d[4] = gardens;
+        -:  124:	
+        1:  125:	memset(&G, 23, sizeof(struct gameState));		//clear the game
+        1:  126:	memset(&post, 23, sizeof(struct gameState));	//clear the post
+        -:  127:	
+        -:  128:#if (NOISY_TEST == 1)			
+        1:  129:	printf("Initializing Game with %d players\n", numPlayers);
+        -:  130:#endif
+        -:  131:
+        1:  132:	initializeGame(numPlayers, k, seed, &G);
+        -:  133:	
+        1:  134:	memcpy(G.hand[player], h, sizeof(int) * 5); //set all cards to test hand h
+        1:  135:	memcpy(G.deck[player], d, sizeof(int) * 5); //set all cards to test deck d
+        1:  136:	G.deckCount[player] = 5;
+        1:  137:	G.handCount[player] = 5;
+        1:  138:	G.whoseTurn = player;		//smithy card expects that the player is playing it on their turn
+        -:  139:	
+        1:  140:	memcpy(&post, &G, sizeof(struct gameState)); //save G
+        -:  141:	
+        -:  142:	//cardEffect(adventurer, choice1, choice2, choice3, &post, handpos, &bonus); //this bug catches an infinite loop
+        -:  143:	
+        -:  144:#if (NOISY_TEST == 1)			
+        1:  145:	printf("   Checking hand count: \n");
+        1:  146:	printf("      Hand count: %d Expected: %d\n", post.handCount[player], G.handCount[player]+1);		//hand count should still be 5 (+1 - 1)
+        -:  147:#endif
+        -:  148:
+        1:  149:	printf("All tests Conducted!\n");
+        -:  150:
+        1:  151:	return 0;
+        -:  152:}

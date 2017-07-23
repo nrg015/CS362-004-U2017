@@ -1,0 +1,139 @@
+        -:    0:Source:unittest2.c
+        -:    0:Graph:unittest2.gcno
+        -:    0:Data:unittest2.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/* -----------------------------------------------------------------------
+        -:    2: * Include the following lines in your makefile:
+        -:    3: *
+        -:    4: * testgainCard: unittest2.c dominion.o rngs.o
+        -:    5: *      gcc -o testgainCard -g  unittest2.c dominion.o rngs.o $(CFLAGS)
+        -:    6: * -----------------------------------------------------------------------
+        -:    7: */
+        -:    8: 
+        -:    9:#include "dominion.h"
+        -:   10:#include "dominion_helpers.h"
+        -:   11:#include <string.h>
+        -:   12:#include <stdio.h>
+        -:   13:#include <assert.h>
+        -:   14:#include "rngs.h"
+        -:   15:#include "interface.h"
+        -:   16:
+        -:   17:// set NOISY_TEST to 0 to remove printfs from output
+        -:   18:#define NOISY_TEST 1
+        -:   19:
+        1:   20:int main() {
+        -:   21:	int i;
+        1:   22:	int seed = 15;
+        -:   23:	int numPlayer;
+        -:   24:	int player, r; 
+        1:   25:	int maxPlayer = 4;
+        -:   26:	int toFlag;
+        -:   27:	// toFlag = 0 : add to discard
+        -:   28:	// toFlag = 1 : add to deck
+        -:   29:	// toFlag = 2 : add to hand
+        -:   30:
+        1:   31:	int k[10] = {adventurer, council_room, feast, gardens, mine, remodel, smithy, village, baron, great_hall};
+        -:   32:	
+        1:   33:	int l[17] = {curse, estate, duchy, province, copper, silver, gold, adventurer, council_room, feast, 
+        -:   34:					gardens, mine, remodel, smithy, village, baron, great_hall};
+        -:   35:	
+        1:   36:	int notInPlay [10] = {minion, steward, tribute, ambassador, cutpurse, embargo, outpost, salvager, sea_hag, treasure_map};
+        -:   37:	
+        -:   38:	char card[256];
+        -:   39:	
+        -:   40:	struct gameState G;
+        -:   41:	struct gameState post;
+        -:   42:	
+        1:   43:	printf ("TESTING gainCard():\n");
+        1:   44:	printf ("Testing regular operations\n");
+        -:   45:	
+        4:   46:	for (numPlayer = 2; numPlayer < 5; numPlayer++) {		//test 2 - 4 players
+       12:   47:		for (toFlag = 0; toFlag < 3; toFlag++) {			//test add to discard/deck/hand 
+        9:   48:			memset(&G, 23, sizeof(struct gameState));		//clear the game
+        9:   49:			memset(&post, 23, sizeof(struct gameState));	//clear the post
+        -:   50:			
+        -:   51:#if (NOISY_TEST == 1)			
+        9:   52:			printf("Initializing Game with %d players\n", numPlayer);
+        -:   53:#endif
+        -:   54:
+        9:   55:			r = initializeGame(numPlayer, k, seed, &G);		//new game
+        -:   56:			
+        9:   57:			memcpy(&post, &G, sizeof(struct gameState));	//Save G
+        -:   58:			
+        -:   59:			
+       36:   60:			for (player = 0; player < numPlayer; player++) {	//go through each player in this instance
+        -:   61:				
+        -:   62:#if (NOISY_TEST == 1)
+       27:   63:				printf("Testing Player %d\n", player);
+        -:   64:#endif
+        -:   65:				
+      513:   66:				for (i = 0; i < 18; i++) {					//go through each card in l
+        -:   67:					
+        -:   68:#if (NOISY_TEST == 1)
+      486:   69:					cardNumToName(l[i], &card);
+      486:   70:					printf("   Testing Card: %s \n", card);
+        -:   71:#endif
+        -:   72:					
+      486:   73:					gainCard(l[i], &post, toFlag, player);
+        -:   74:					
+        -:   75:#if (NOISY_TEST == 1)
+      486:   76:					switch (toFlag) {
+        -:   77:						case 0: 
+      162:   78:							printf("   Dsicard Count: %d Expected: %d\n", post.discardCount[player], G.discardCount[player] + 1);
+      162:   79:							break;
+        -:   80:						case 1: 
+      162:   81:							printf("   Deck Count:    %d Expected: %d\n", post.deckCount[player], G.deckCount[player] + 1);
+      162:   82:							break;
+        -:   83:						case 2: 
+      162:   84:							printf("   Hand Count:    %d Expected: %d\n", post.handCount[player], G.handCount[player] + 1);
+      162:   85:							break;
+        -:   86:					}
+        -:   87:					
+      486:   88:					printf("   Supply Count:    %d Expected: %d\n", post.supplyCount[l[i]], G.supplyCount[l[i]] - 1);
+        -:   89:#endif
+        -:   90:
+      486:   91:					memcpy(&G, &post, sizeof(struct gameState));	//get ready for next player
+        -:   92:				}
+        -:   93:			}
+        -:   94:		}			
+        -:   95:	}
+        -:   96:	
+        1:   97:	printf("Testing empty Supply piles: \n");
+        -:   98:	
+        1:   99:	memset(&G, 23, sizeof(struct gameState));		//clear the game
+        1:  100:	r = initializeGame(2, k, seed, &G);
+        1:  101:	player = 0;
+        1:  102:	toFlag = 2;
+        -:  103:	
+       19:  104:	for (i = 0; i < 18; i++) {
+        -:  105:		
+        -:  106:#if (NOISY_TEST == 1)
+       18:  107:		cardNumToName(l[i], &card);
+       18:  108:		printf("   Testing Card: %s \n", card);
+        -:  109:#endif
+       18:  110:		G.supplyCount[l[i]] = 0;
+        -:  111:		
+       18:  112:		printf("      Return Value: %d Expected: 0\n", gainCard(l[i], &G, toFlag, player));
+        -:  113:	}
+        -:  114:	
+        1:  115:	printf("Testing cards not in play: \n");
+        -:  116:	
+        1:  117:	memset(&G, 23, sizeof(struct gameState));		//clear the game
+        1:  118:	r = initializeGame(2, k, seed, &G);
+        1:  119:	player = 0;
+        1:  120:	toFlag = 2;
+        -:  121:	
+       12:  122:	for (i = 0; i < 11; i++) {
+        -:  123:		
+        -:  124:#if (NOISY_TEST == 1)
+       11:  125:		cardNumToName(notInPlay[i], &card);
+       11:  126:		printf("   Testing Card: %s \n", card);
+        -:  127:#endif
+       11:  128:		assert(gainCard(notInPlay[i], &G, toFlag, player) == -1);
+        -:  129:	}
+        -:  130:	
+        1:  131:	printf("All tests conducted!\n");
+        -:  132:	
+        1:  133:	return 0;
+        -:  134:}
