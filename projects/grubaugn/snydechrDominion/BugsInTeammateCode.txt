@@ -1,0 +1,23 @@
+Smithy Card:
+	The bug I found within the smithy_action function is the undesirable dominion behavior of drawing 4 cards instead of 3. 
+The correct number of cards to be drawn are 3 cards for the smithy card. This bug was reflected in the unit tests when there was 
+an extra card found in the player’s hand. You can find the bugged code in the for loop in smithy_action. To fix it, just change 
+the number 4 to 3.
+
+Adventurer Card:
+	Within the adventurer_action function, there are three bugs. The first bug I found is that the adventurer card itself is 
+not discarded. I was able to find this bug, because it is also present in the dominion code I have. In the while loop that is discarding
+all the cards in play, it doesn’t discard the adventurer card that was just played, only the newly drawn cards. To fix this bug, a 
+new line of code would need to be added which discards the adventurer card.
+
+	Another bug in the adventurer_action function happens when a copper card is drawn, the drawntreasure variable is increased
+by 2, which ends the process of drawn treasure cards. So, if a copper card is drawn first, then no more treasure cards are drawn. 
+The bugged code is found in the else-if line of code where it checks if the drawn card is copper. To fix this, the else-if code 
+should be removed, and another check on the drawn card should be added to the if statement that checks if the drawn card is gold 
+or silver. To restore correct functionality, the if statement should check if the drawn card is gold, silver, or copper.
+ 
+	The last bug I found in the adventurer_action function happens when only one treasure card is within the deck. This bug is
+also in my dominion code, so my tests were able to find it. One of my unit tests specifically checks this corner case as well. When 
+there’s only one treasure card, the function becomes an infinite loop, continually looking for another treasure card. To fix this, 
+some piece of code should be added that checks how many iterations of the loop have occurred. That way, if too many are happening, 
+the code will break out of the infinite loop. 
